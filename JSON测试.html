@@ -1,0 +1,200 @@
+﻿<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional// EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Leaflet.curve plugin demo</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0/dist/leaflet.css" />
+    <script type="text/javascript" src="https://unpkg.com/leaflet@1.0.0/dist/leaflet.js"></script>
+    <script type="text/javascript" src="JS文件/heatmap.js"></script>
+    <script type="text/javascript" src="JS文件/leaflet-heatmap.js"></script>
+    <script type="text/javascript" src="JS文件/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="JS文件/leaflet.curve.js"></script>
+    <script type="text/javascript" src="JS文件/Point.js"></script>
+    <script type="text/javascript" src="JS文件/Line.js"></script>
+    <script type="text/javascript" src="JS文件/Area.js"></script>
+    <script type="text/javascript" src="JS文件/dian.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        #mapid {
+            height: 775px;
+            width: 1000px;
+            margin: 0 auto;
+        }
+
+        .mswitch {
+            background: url(images/maptype.png) 0px -46px;
+            width: 49px;
+            height: 46px;
+            position: absolute;
+            z-index: 999999;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+            padding: 0;
+            border: 0 solid gray;
+            vertical-align: bottom;
+            text-align: center;
+        }
+
+        .mswitch span {
+            display: block;
+            position: absolute;
+            bottom: 2px;
+            left: 2px;
+            width: 45px;
+        }
+    </style>
+</head>
+<body>
+<div id="mapid">
+    <div class="mswitch" onclick="switchlayer()" onmouseover="swover()" onmouseout="swout()">
+        <span style=""><b>地图</b></span>
+    </div>
+</div>
+
+</div>
+<script>
+    var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    var tdtUrl='http://{s}.tianditu.cn/img_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=img&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles';
+    var tdtUrl_L='http://{s}.tianditu.cn/cia_w/wmts?service=wmts&request=GetTile&version=1.0.0&LAYER=cia&tileMatrixSet=w&TileMatrix={z}&TileRow={y}&TileCol={x}&style=default&format=tiles';
+    map= L.map("mapid", {
+        center: [24.490474,118.110221],
+        //center: [34.607181, 119.2197133],
+        //zoom: 8,
+        zoom:5,
+        minZoom:3,
+        maxZoom:18,
+        layers: [L.tileLayer(tdtUrl, { subdomains: ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7"] }),
+        L.tileLayer(tdtUrl_L, { subdomains: ["t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7"] })],
+        zoomControl: true,
+        attributionControl: false
+    });
+
+    var curMapModel = "Sat";
+    
+    var labLayer = 0;
+
+    function switchlayer() {
+        if (curMapModel == "Vec") {
+            baseLayer=L.tileLayer(tdtUrl, { subdomains: ["t0", "t1", "t2", "t3", "t4","t5","t6","t7"] }).addTo(map);
+            labLayer=L.tileLayer(tdtUrl_L,{ subdomains: ["t0", "t1", "t2", "t3", "t4","t5","t6","t7"] }).addTo(map);
+            curMapModel = "Sat";
+            $(".mswitch span").text("地图");
+            $(".mswitch").css("background", "url(images/maptype.png) 0px 0px")
+        } else if (curMapModel == "Sat") {
+            baseLayer = L.tileLayer(osmUrl).addTo(map);
+            labLayer=0;
+            curMapModel = "Vec";
+            $(".mswitch span").text("卫星");
+            $(".mswitch").css("background", "url(images/maptype.png) 0px -46px");
+        }
+    }
+    function swover() {
+        $(".mswitch span").css("background-color", "blue");
+        $(".mswitch span").css("color", "white");
+    }
+    function swout() {
+        $(".mswitch span").css("background-color", "");
+        $(".mswitch span").css("color", "rgb(102,102,102)");//color:rgb(102,102,102)
+    }
+
+    var pathOne = L.curve(['M', [27.171125,114.803991],
+        'Q', [25.713674,113.479386],
+        [22.915255, 114.47284]], { dashArray: 5 }).addTo(map);
+    var pathTwo = L.curve(['M', [25.930147, 109.3032],
+        'Q', [23.713879, 110.554216],
+        [21.716979, 107.050943]], { color: 'red'}).addTo(map);
+
+    var testData = {
+        max: 8,
+        data:
+            [
+                { lat: 34.62176, lng: 119.214736, count: 0.01 * Math.floor(Math.random() * 100) },
+                { lat: 34.841009, lng: 119.188434, count: 0.01 * Math.floor(Math.random() * 100) },
+                { lat: 34.533863, lng: 118.751727, count: 0.01 * Math.floor(Math.random() * 100) },
+                { lat: 34.277796, lng: 119.246112, count: 0.01 * Math.floor(Math.random() * 100) },//
+                { lat: 34.089213, lng: 119.323017, count: 0.01 * Math.floor(Math.random() * 100) },
+                { lat: 34.209682, lng: 119.592182, count: 0.01 * Math.floor(Math.random() * 100) },
+                { lat: 34.759816, lng: 119.339496, count: 0.01 * Math.floor(Math.random() * 100) },
+                { lat: 34.59884, lng: 119.195928, count: 0.01 * Math.floor(Math.random() * 100) }
+            ]
+    };
+
+    var cfg = {
+        "radius": 0.3,
+        "maxOpacity": 1,
+        "scaleRadius": true,
+        "useLocalExtrema": true,
+        blur: 0.675,
+        latField: 'lat',
+        lngField: 'lng',
+        //valueField: 'count',
+        gradient: {
+            "0.87": "rgba(178,34,34,1)",
+            "0.85": "rgba(255,0,0,1)",
+            "0.65": "rgba(255,110,180,1)",
+            "0.3": "rgba(255,140,0,1)",
+            "0": "rgba(92,172,238,1)"
+        }
+    };
+
+    var heatmapLayer = new HeatmapOverlay(cfg);
+
+    heatmapLayer = new HeatmapOverlay(cfg);//声明热力图
+    map.addLayer(heatmapLayer);
+    console.log(testData);
+    heatmapLayer.setData(testData);
+    L.geoJSON(line,
+        {
+            style: function (feature) {
+                return feature.properties && feature.properties.style;
+            },
+            filter: function (feature, layer) {
+                if (feature.properties) {
+                    // If the property "underConstruction" exists and is true, return false (don't render features under construction)
+                    return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
+                }
+                return false;
+            }//,
+            //onEachFeature: onEachFeature
+        }).addTo(map);
+    L.geoJSON(area,
+        {
+            style: function (feature) {
+                return feature.properties && feature.properties.style;
+            },
+            filter: function (feature, layer) {
+                if (feature.properties) {
+                    // If the property "underConstruction" exists and is true, return false (don't render features under construction)
+                    return feature.properties.underConstruction !== undefined ? !feature.properties.underConstruction : true;
+                }
+                return false;
+            }//,
+            //onEachFeature: onEachFeature
+        }).addTo(map);
+
+    L.geoJSON(point, {
+        // onEachFeature: onEachFeature,
+        pointToLayer: function (feature, latlng) {
+            return L.circleMarker(latlng, {
+                radius: 2,
+                fillColor: "#0000FF",
+                color: "#0000FF",
+                weight: 1,
+                opacity: 1,
+                fillOpacity: 0.8
+            });
+        }
+    }).addTo(map);
+
+
+
+</script>
+</body>
+</html>
